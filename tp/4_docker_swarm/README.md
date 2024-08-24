@@ -1,7 +1,7 @@
 # Registry harbord
 Dans cette configuration Vagrant,vous allez pouvoir déployer une VM dans laquelle on aura préinstallé un moteur Docker.
 ```bash 
-git clone https://github.com/De-la-decouverte-a-l-expertise/docker-formation.git
+git clone https://github.com/RousselTM/docker-formation.git
 cd docker-formation/TP/4_docker_swarm
 vagrant up
 ```
