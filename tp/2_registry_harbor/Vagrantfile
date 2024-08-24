@@ -1,0 +1,40 @@
+$get_harbor = <<-SCRIPT
+cd /opt
+wget https://github.com/goharbor/harbor/releases/download/v2.10.0/harbor-offline-installer-v2.10.0.tgz
+tar -xvzf harbor-offline-installer-v2.10.0.tgz
+cd harbor; cp -a harbor.yml.tmpl harbor.yml
+sed "s/reg.mydomain.com/harbor.deladecouvertealexpertise.fr/g" -i harbor.yml
+#./install.sh --with-trivy
+#Please do NOT set --with-chartmuseum, as chartmusuem has been deprecated and removed.
+#Please do NOT set --with-notary, as notary has been deprecated and removed.
+SCRIPT
+
+Vagrant.configure("2") do |config|
+    
+    #Transfert de port machine -> vm
+    config.vm.network "forwarded_port", guest: 80, host: 80
+    config.vm.network "forwarded_port", guest: 443, host: 443
+    config.vm.network "forwarded_port", guest: 8080, host: 8080
+    
+    #Definir le nom de la machine dans vagrant. Replace default
+    config.vm.define "formation-docker"
+    
+    #Definir le provider 
+    config.vm.provider "virtualbox" do |v|
+        #Definir le nom de la VM dans le provider en remplacement de celui par defaut
+        v.name = "formation-docker"
+    end
+
+    #Definir le hostname de la VM
+    config.vm.hostname = "formation-docker"
+    
+    config.vm.box = "bento/ubuntu-23.10"
+
+    #Installer Docker et télécharger l'image alpine 
+    config.vm.provision "docker" do |d|
+        d.pull_images "alpine"
+    end
+
+    config.vm.provision "shell", inline: $get_harbor
+
+end

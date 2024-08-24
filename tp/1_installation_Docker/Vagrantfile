@@ -1,0 +1,22 @@
+Vagrant.configure("2") do |config|
+    
+    #Transfert de port machine -> vm
+    config.vm.network "forwarded_port", guest: 80, host: 80
+    config.vm.network "forwarded_port", guest: 443, host: 443
+    config.vm.network "forwarded_port", guest: 8080, host: 8080
+    
+    #Definir le nom de la machine dans vagrant. Replace default
+    config.vm.define "formation-docker"
+    
+    #Definir le provider 
+    config.vm.provider "virtualbox" do |v|
+        #Definir le nom de la VM dans le provider en remplacement de celui par defaut
+        v.name = "formation-docker"
+    end
+
+    #Definir le hostname de la VM
+    config.vm.hostname = "formation-docker"
+    
+    config.vm.box = "bento/ubuntu-23.10"
+
+end

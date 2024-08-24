@@ -1,0 +1,59 @@
+# Install docker SWARM
+deploy_swarm = ENV['DEPLOY_SWARM'] || false
+
+#Managers 
+manager_ip = "192.168.2.2"
+
+#Workers 
+numworkers = 2
+instances = []
+(1..numworkers).each do |n| 
+  instances.push({:name => "worker#{n}", :ip => "192.168.3.#{n+2}"})
+end
+
+#Cluster IP
+File.open("./hosts", 'w') { |file| 
+    file.write("#{manager_ip} manager manager.deladecouvertealexpertise.fr\n")
+    instances.each do |i|
+        file.write("#{i[:ip]} #{i[:name]} #{i[:name]}.deladecouvertealexpertise.fr\n")
+    end
+}
+
+
+Vagrant.configure("2") do |config|
+    
+    #Création du Manager
+    config.vm.define "manager" do |i|
+        i.vm.box = "bento/rockylinux-9"
+        i.vm.hostname = "manager"
+        i.vm.network "private_network", ip: "#{manager_ip}"
+        if File.file?("./hosts") 
+          i.vm.provision "file", source: "hosts", destination: "/tmp/hosts"
+          i.vm.provision "shell", inline: "cat /tmp/hosts >> /etc/hosts", privileged: true
+        end 
+        if deploy_swarm 
+          i.vm.provision "shell", inline: "docker swarm init --advertise-addr #{manager_ip}"
+          i.vm.provision "shell", inline: "docker swarm join-token -q worker > /vagrant/swarm-token"
+        end
+    end 
+
+    #Création des workers 
+    instances.each do |instance| 
+        config.vm.define instance[:name] do |i|
+            i.vm.box = "bento/ubuntu-23.10"
+            i.vm.hostname = instance[:name]
+            i.vm.network "private_network", ip: "#{instance[:ip]}"
+            config.vm.provision "docker" do |d|
+                d.pull_images "nginx"
+            end
+            if File.file?("./hosts") 
+                i.vm.provision "file", source: "hosts", destination: "/tmp/hosts"
+                i.vm.provision "shell", inline: "cat /tmp/hosts >> /etc/hosts", privileged: true
+            end 
+            if deploy_swarm
+                i.vm.provision "shell", inline: "docker swarm join --advertise-addr #{instance[:ip]} --listen-addr #{instance[:ip]}:2377 --token `cat /vagrant/swarm-token` #{manager_ip}:2377"
+            end
+        end 
+    end
+
+end
