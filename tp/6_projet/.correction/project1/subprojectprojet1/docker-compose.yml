@@ -1,0 +1,33 @@
+services:
+     
+  traefik:
+    image: traefik
+    restart: always
+    ports:
+      - "8080:8080"
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config:/config
+    command:
+      # Common
+      - --api.dashboard=true
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      
+      # Observability   
+      - "--metrics.prometheus=true"
+      
+      #entrypoints
+      - "--entrypoints.web.address=:80"
+    
+    networks:
+      - common-traefik
+      - common-observability
+
+networks:
+  common-traefik:
+    external: true
+  common-observability:
+    external: true
