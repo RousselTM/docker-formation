@@ -2,7 +2,7 @@
 Dans cette configuration Vagrant,vous allez pouvoir déployer une VM dans laquelle on aura préinstallé un moteur Docker.
 ```bash 
 git clone https://github.com/RousselTM/docker-formation.git
-cd docker-formation/TP/4_docker_swarm
+cd docker-formation/TP/6_projet
 vagrant up
 ```
 Contrairement aux précédents TP, cette configuration va déployer 3 VMs. Vous pouvez vérifier le statut avec la commande :
@@ -15,7 +15,11 @@ vagrant ssh <NOM_VM>
 ```
 Il faudra passer en root
 ```bash 
-sudo su - root
+sudo su
+```
+Si vous souhaitez automatiquement installer Docker après la création des machines:  
+```bash 
+ROUSSELTM_DEPLOY_DOCKER=true vagrant up
 ```
 Puis lancer l'initialisation de Docker Swarm depuis la machine manager
 ```bash 
@@ -27,5 +31,5 @@ docker swarm join-token -q worker
 ```
 Si vous souhaitez initialiser automatiquement Swarm à l'installation de la machine vous pouvez lancer cette commande 
 ```bash 
-export DEPLOY_SWARM=true; vagrant up
+ROUSSELTM_DEPLOY_SWARM=true vagrant up
 ```
