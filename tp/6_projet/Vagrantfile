@@ -38,6 +38,7 @@ systemctl enable docker
 SCRIPT
 
 
+
 Vagrant.configure("2") do |config|
     
     #Création du Manager
