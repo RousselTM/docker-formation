@@ -38,7 +38,6 @@ systemctl enable docker
 SCRIPT
 
 
-
 Vagrant.configure("2") do |config|
     
     #Création du Manager
@@ -73,8 +72,7 @@ Vagrant.configure("2") do |config|
             i.vm.box = "bento/ubuntu-24.04"
             i.vm.hostname = instance[:name]
             i.vm.network "private_network", ip: "#{instance[:ip]}"
-            i.vm.synced_folder "D:\\git\\elearning\\web\\projects\\docker", "/opt/projects",
-            #i.vm.synced_folder "projects", "/opt/projects",
+            i.vm.synced_folder "projects", "/opt/projects",
                 mount_options: ["dmode=775,fmode=777"]
             if File.file?("./hosts") 
                 i.vm.provision "file", source: "hosts", destination: "/tmp/hosts"
